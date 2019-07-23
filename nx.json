@@ -7,5 +7,12 @@
     "tslint.json": "*",
     "nx.json": "*"
   },
-  "projects": {}
+  "projects": {
+    "tagr-ui-e2e": {
+      "tags": []
+    },
+    "tagr-ui": {
+      "tags": []
+    }
+  }
 }
