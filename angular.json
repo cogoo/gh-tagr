@@ -18,7 +18,7 @@
             "main": "apps/tagr-ui/src/main.ts",
             "polyfills": "apps/tagr-ui/src/polyfills.ts",
             "tsConfig": "apps/tagr-ui/tsconfig.app.json",
-            "aot": false,
+            "aot": true,
             "assets": [
               "apps/tagr-ui/src/favicon.ico",
               "apps/tagr-ui/src/assets"
@@ -46,8 +46,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
+                  "maximumWarning": "100kb",
+                  "maximumError": "250kb"
                 }
               ]
             }
