@@ -21,7 +21,8 @@
             "aot": true,
             "assets": [
               "apps/tagr-ui/src/favicon.ico",
-              "apps/tagr-ui/src/assets"
+              "apps/tagr-ui/src/assets",
+              "apps/tagr-ui/src/manifest.webmanifest"
             ],
             "styles": ["apps/tagr-ui/src/styles.css"],
             "scripts": []
@@ -49,7 +50,9 @@
                   "maximumWarning": "300kb",
                   "maximumError": "500kb"
                 }
-              ]
+              ],
+              "serviceWorker": true,
+              "ngswConfigPath": "apps/tagr-ui/ngsw-config.json"
             }
           }
         },
