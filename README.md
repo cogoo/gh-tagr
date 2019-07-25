@@ -1,16 +1,7 @@
-# GhTagr
+# Monorepo
 
-This project will not be following Angular best practices
+## Apps
 
-## Architecture
+### Tagr
 
-- SCAM Modules
-
-## Tools
-
-- Nx
-- Storybook
-
-## Features
-
-- Service Worker
+[Tagr](./apps/tagr-ui)
