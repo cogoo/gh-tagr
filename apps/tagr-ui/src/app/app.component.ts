@@ -1,59 +1,180 @@
+import { map, tap, delay } from 'rxjs/operators';
+import { TagService } from './tag.service';
 import { Component } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { fromEvent } from 'rxjs';
 
 @Component({
   selector: 'gh-tagr-root',
+  styles: [
+    `
+      :host {
+        --ebony-clay: #252a41;
+        --action-white: #fff;
+        --app-radius: 20px;
+        flex: 0 0 80%;
+      }
+
+      .app-wrapper {
+        background: var(--ebony-clay);
+        border-radius: var(--app-radius);
+        display: flex;
+        box-shadow: 0px 21px 19px -5px rgba(126, 128, 134, 0.6);
+      }
+
+      .app-main,
+      .app-aside {
+        flex: 0 0 50%;
+        justify-content: center;
+      }
+
+      .app-main {
+        color: var(--action-white);
+      }
+
+      .app-main-wrapper {
+        padding: 150px;
+      }
+
+      .app-aside {
+        background: var(--action-white);
+        border-radius: var(--app-radius);
+        margin: 40px;
+        padding: 30px 50px;
+        text-align: left;
+      }
+
+      .header-title,
+      .header-copy {
+        color: var(--action-white);
+      }
+
+      .header-title {
+        font-size: 4rem;
+        margin: 0;
+      }
+
+      .header-copy {
+        opacity: 0.25;
+        margin-top: 5px;
+      }
+
+      .section-wrapper {
+        margin-top: 40px;
+      }
+
+      .section-copy {
+        opacity: 0.6;
+      }
+
+      .search-bar {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: var(--app-radius);
+        width: 100%;
+        border: 0;
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--action-white);
+        font-size: 1.4rem;
+      }
+
+      .search-bar::placeholder {
+        color: var(--action-white);
+      }
+
+      .tiles {
+        padding: 10px;
+        border-radius: 6px;
+        margin: 5px;
+      }
+
+      .tiles-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    `
+  ],
   template: `
-    <div style="text-align:center">
-      <h1>Welcome to {{ title }}!</h1>
-      <img
-        width="450"
-        src="https://raw.githubusercontent.com/nrwl/nx/master/nx-logo.png"
-      />
-    </div>
+    <main class="app-wrapper" *ngIf="{ mousemove: mousemove$ | async }">
+      <section class="app-main">
+        <div class="app-main-wrapper">
+          <header class="app-header">
+            <h1 class="header-title">Hi Jeff</h1>
+            <p class="header-copy">Start creating your Github tags</p>
+            <input class="search-bar" placeholder="start typing" />
+          </header>
 
-    <p>
-      This is an Angular app built with <a href="https://nx.dev/angular">Nx</a>.
-    </p>
-    <p>🔎 **Nx is a set of Extensible Dev Tools for Monorepos.**</p>
+          <section class="section-wrapper">
+            <p class="section-copy">Or chose one of our premade tags:</p>
+            <div class="tiles-wrapper">
+              <span
+                class="tiles"
+                *ngFor="let tile of (tagTemplates$ | async)"
+                [ngStyle]="{ background: tile.color }"
+                (click)="selectTag(tile)"
+              >
+                {{ tile.name }}
+              </span>
+            </div>
+          </section>
+        </div>
+      </section>
 
-    <h2>Quick Start & Documentation</h2>
-
-    <ul>
-      <li>
-        <a href="https://nx.dev/angular/getting-started/what-is-nx"
-          >10-minute video showing all Nx features</a
-        >
-      </li>
-      <li>
-        <a href="https://nx.dev/angular/tutorial/01-create-application"
-          >Interactive tutorial</a
-        >
-      </li>
-    </ul>
-
-    <router-outlet></router-outlet>
-  `,
-  styles: [``]
+      <aside class="app-aside">
+        <section class="tags-wrapper">
+          <h3 class="tags-title">My Tags</h3>
+          <hr />
+          <ul class="tags">
+            <li class="tag" *ngFor="let tag of selectedTags">{{ tag.name }}</li>
+          </ul>
+        </section>
+        <button class="download"></button>
+      </aside>
+    </main>
+  `
 })
 class AppComponent {
   title = 'tagr-ui';
+  tagTemplates$ = this.tagService.tagTemplates$;
+  private outerCursor = <any>document.querySelector('.circle-cursor--outer');
+  private innerCursor = <any>document.querySelector('.circle-cursor--inner');
+
+  mousemove$ = fromEvent(document, 'mousemove').pipe(
+    map((e: any) => ({ x: e.clientX, y: e.clientY })),
+    tap(({ x, y }) => {
+      requestAnimationFrame(() => {
+        this.innerCursor.style = `left:${x}px; top:${y}px`;
+      });
+    }),
+    delay(100),
+    tap(({ x, y }) => {
+      requestAnimationFrame(() => {
+        this.outerCursor.style = `left:${x - 14}px; top:${y - 14}px`;
+      });
+    })
+  );
+  selectedTags: any[] = [];
+
+  constructor(private tagService: TagService) {}
+
+  selectTag(tag) {
+    this.selectedTags = [...this.selectedTags, tag];
+  }
 }
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
-    RouterModule.forRoot([], { initialNavigation: 'enabled' }),
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production
     })
   ],
-  providers: [],
+  providers: [TagService],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

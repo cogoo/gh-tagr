@@ -1,1 +1,47 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Nunito:400,700,900&display=swap');
+
+html, body {
+  background: #e0e3ed;
+  font-family: 'Nunito', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  line-height: 1;
+}
+
+html {
+  font-size: 62.5%;
+  cursor: none;
+}
+
+body {
+  font-size: 1.6rem;
+}
+
+.circle-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.circle-cursor--outer {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #35d9d8;
+  z-index: 12000;
+  opacity: 0.2;
+}
+
+.circle-cursor--inner {
+  width: 5px;
+  height: 5px;
+  left: -2.5px;
+  top: -2.5px;
+  z-index: 11000;
+  background: #35d9d8;
+}
