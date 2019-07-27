@@ -1,3 +1,4 @@
+import { TagsState } from './tags.state';
 import { TagsApi } from './tags.api';
 import { map, tap, delay } from 'rxjs/operators';
 import { Component } from '@angular/core';
@@ -111,14 +112,17 @@ import { TagsFacade } from './tags.facade';
             <input class="search-bar" placeholder="start typing" />
           </header>
 
-          <section class="section-wrapper">
+          <section
+            class="section-wrapper"
+            *ngIf="(tagTemplates$ | async) as tags"
+          >
             <p class="section-copy">Or chose one of our premade tags:</p>
             <div class="tiles-wrapper">
               <span
                 class="tiles"
-                *ngFor="let tile of (tagTemplates$ | async)"
+                *ngFor="let tile of tags"
                 [ngStyle]="{ background: tile.color }"
-                (click)="selectTag(tile)"
+                (click)="addTag(tile)"
               >
                 {{ tile.name }}
               </span>
@@ -132,7 +136,9 @@ import { TagsFacade } from './tags.facade';
           <h3 class="tags-title">My Tags</h3>
           <hr />
           <ul class="tags">
-            <li class="tag" *ngFor="let tag of selectedTags">{{ tag.name }}</li>
+            <li class="tag" *ngFor="let tag of (selectedTags$ | async)">
+              {{ tag.name }}
+            </li>
           </ul>
         </section>
         <button class="download"></button>
@@ -160,8 +166,8 @@ class AppComponent {
 
   constructor(private tagsFacade: TagsFacade) {}
 
-  selectTag(tag) {
-    this.tagsFacade.selectTag(tag);
+  addTag(tag) {
+    this.tagsFacade.addTag(tag);
   }
 }
 
@@ -173,7 +179,7 @@ class AppComponent {
       enabled: environment.production
     })
   ],
-  providers: [TagsFacade, TagsApi],
+  providers: [TagsFacade, TagsApi, TagsState],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

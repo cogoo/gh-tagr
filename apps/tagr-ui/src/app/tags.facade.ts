@@ -1,11 +1,15 @@
+import { TagsState } from './tags.state';
+import { TagsApi } from './tags.api';
 import { Injectable } from '@angular/core';
 
 @Injectable()
 export class TagsFacade {
-  selectedTags$;
-  tagTemplates$;
+  selectedTags$ = this.tagsState.getSelectedTags();
+  tagTemplates$ = this.tagsApi.getTags();
 
-  constructor() {}
+  constructor(private tagsApi: TagsApi, private tagsState: TagsState) {}
 
-  selectTag(tag) {}
+  addTag(tag) {
+    this.tagsState.addSelectedTag(tag);
+  }
 }
