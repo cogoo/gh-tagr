@@ -1,11 +1,12 @@
+import { TagsApi } from './tags.api';
 import { map, tap, delay } from 'rxjs/operators';
-import { TagService } from './tag.service';
 import { Component } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { fromEvent } from 'rxjs';
+import { TagsFacade } from './tags.facade';
 
 @Component({
   selector: 'gh-tagr-root',
@@ -85,16 +86,18 @@ import { fromEvent } from 'rxjs';
         color: var(--action-white);
       }
 
-      .tiles {
-        padding: 10px;
-        border-radius: 6px;
-        margin: 5px;
-      }
-
       .tiles-wrapper {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        max-height: 300px;
+        overflow: scroll;
+      }
+
+      .tiles {
+        padding: 10px;
+        border-radius: 6px;
+        margin: 5px;
       }
     `
   ],
@@ -139,7 +142,9 @@ import { fromEvent } from 'rxjs';
 })
 class AppComponent {
   title = 'tagr-ui';
-  tagTemplates$ = this.tagService.tagTemplates$;
+  tagTemplates$ = this.tagsFacade.tagTemplates$;
+  selectedTags$ = this.tagsFacade.selectedTags$;
+
   private outerCursor = <any>document.querySelector('.circle-cursor--outer');
   private innerCursor = <any>document.querySelector('.circle-cursor--inner');
 
@@ -148,21 +153,15 @@ class AppComponent {
     tap(({ x, y }) => {
       requestAnimationFrame(() => {
         this.innerCursor.style = `left:${x}px; top:${y}px`;
-      });
-    }),
-    delay(100),
-    tap(({ x, y }) => {
-      requestAnimationFrame(() => {
         this.outerCursor.style = `left:${x - 14}px; top:${y - 14}px`;
       });
     })
   );
-  selectedTags: any[] = [];
 
-  constructor(private tagService: TagService) {}
+  constructor(private tagsFacade: TagsFacade) {}
 
   selectTag(tag) {
-    this.selectedTags = [...this.selectedTags, tag];
+    this.tagsFacade.selectTag(tag);
   }
 }
 
@@ -174,7 +173,7 @@ class AppComponent {
       enabled: environment.production
     })
   ],
-  providers: [TagService],
+  providers: [TagsFacade, TagsApi],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { TagService } from './tag.service';
+import { TagsFacade } from './tags.facade';
 
-describe('TagService', () => {
+describe('TagsFacade', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: TagService = TestBed.get(TagService);
+    const service: TagsFacade = TestBed.get(TagsFacade);
     expect(service).toBeTruthy();
   });
 });
