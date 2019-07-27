@@ -1,12 +1,4 @@
-import { TagsState } from './tags.state';
-import { TagsApi } from './tags.api';
-import { map, tap, delay } from 'rxjs/operators';
 import { Component } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { environment } from '../environments/environment';
-import { fromEvent } from 'rxjs';
 import { TagsFacade } from './tags.facade';
 
 @Component({
@@ -16,6 +8,7 @@ import { TagsFacade } from './tags.facade';
       :host {
         --ebony-clay: #252a41;
         --action-white: #fff;
+        --turquoise: #35d8d9;
         --app-radius: 20px;
         flex: 0 0 80%;
       }
@@ -29,7 +22,6 @@ import { TagsFacade } from './tags.facade';
 
       .app-main,
       .app-aside {
-        flex: 0 0 50%;
         justify-content: center;
       }
 
@@ -38,15 +30,17 @@ import { TagsFacade } from './tags.facade';
       }
 
       .app-main-wrapper {
-        padding: 150px;
+        padding: 150px 75px;
       }
 
       .app-aside {
         background: var(--action-white);
         border-radius: var(--app-radius);
-        margin: 40px;
         padding: 30px 50px;
         text-align: left;
+        flex: 1 0 30%;
+        margin: 20px;
+        position: relative;
       }
 
       .header-title,
@@ -99,17 +93,60 @@ import { TagsFacade } from './tags.facade';
         padding: 10px;
         border-radius: 6px;
         margin: 5px;
+        color: var(--action-white);
+      }
+
+      .tiles--inline-block {
+        display: inline-block;
+      }
+
+      .selected-tag {
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .trash-icon {
+        height: 20px;
+      }
+
+      .download-btn {
+        bottom: 20px;
+        right: 20px;
+        position: absolute;
+        border-radius: 50%;
+        background: var(--turquoise);
+        height: 60px;
+        width: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 2px 3px 6px 0px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s;
+      }
+
+      .download-btn:hover {
+        transform: translateY(-5px);
+      }
+
+      .download-icon {
+        height: 30px;
       }
     `
   ],
   template: `
-    <main class="app-wrapper" *ngIf="{ mousemove: mousemove$ | async }">
+    <main class="app-wrapper">
       <section class="app-main">
         <div class="app-main-wrapper">
           <header class="app-header">
             <h1 class="header-title">Hi Jeff</h1>
             <p class="header-copy">Start creating your Github tags</p>
-            <input class="search-bar" placeholder="start typing" />
+            <input
+              #input
+              class="search-bar"
+              placeholder="start typing"
+              (keyup.enter)="onSubmit(input)"
+            />
           </header>
 
           <section
@@ -135,51 +172,56 @@ import { TagsFacade } from './tags.facade';
         <section class="tags-wrapper">
           <h3 class="tags-title">My Tags</h3>
           <hr />
-          <ul class="tags">
-            <li class="tag" *ngFor="let tag of (selectedTags$ | async)">
-              {{ tag.name }}
+          <ul>
+            <li
+              class="selected-tag"
+              *ngFor="let tag of (selectedTags$ | async) as selectedTags"
+            >
+              <span
+                class="tiles tiles--inline-block"
+                [ngStyle]="{ background: tag.color }"
+              >
+                {{ tag.name }}
+              </span>
+
+              <button class="trash" (click)="removeTag(tag)">
+                <img class="trash-icon" src="assets/icons/trash.svg" />
+              </button>
             </li>
           </ul>
         </section>
-        <button class="download"></button>
+        <button
+          class="download-btn"
+          *ngIf="(selectedTags$ | async).length > 0"
+          (click)="downloadTags()"
+        >
+          <img class="download-icon" src="assets/icons/download.svg" />
+        </button>
       </aside>
     </main>
   `
 })
-class AppComponent {
+export class AppComponent {
   title = 'tagr-ui';
   tagTemplates$ = this.tagsFacade.tagTemplates$;
   selectedTags$ = this.tagsFacade.selectedTags$;
-
-  private outerCursor = <any>document.querySelector('.circle-cursor--outer');
-  private innerCursor = <any>document.querySelector('.circle-cursor--inner');
-
-  mousemove$ = fromEvent(document, 'mousemove').pipe(
-    map((e: any) => ({ x: e.clientX, y: e.clientY })),
-    tap(({ x, y }) => {
-      requestAnimationFrame(() => {
-        this.innerCursor.style = `left:${x}px; top:${y}px`;
-        this.outerCursor.style = `left:${x - 14}px; top:${y - 14}px`;
-      });
-    })
-  );
 
   constructor(private tagsFacade: TagsFacade) {}
 
   addTag(tag) {
     this.tagsFacade.addTag(tag);
   }
-}
 
-@NgModule({
-  declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production
-    })
-  ],
-  providers: [TagsFacade, TagsApi, TagsState],
-  bootstrap: [AppComponent]
-})
-export class AppModule {}
+  removeTag(tag) {
+    this.tagsFacade.removeTag(tag);
+  }
+
+  onSubmit(input) {
+    this.tagsFacade.submitTag(input.value);
+    input.value = '';
+  }
+
+  downloadTags() {
+    this.tagsFacade.downloadTags();
+  }
+}

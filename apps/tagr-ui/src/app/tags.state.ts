@@ -1,10 +1,7 @@
+import { Tag } from './tags.interface';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
-// TODO: this should be exported from a file
-interface Tag {
-  [key: string]: string;
-}
 @Injectable()
 export class TagsState {
   private selectedTags$ = new BehaviorSubject<Tag[]>([]);
@@ -16,7 +13,18 @@ export class TagsState {
     this.selectedTags$.next([...currentState, tag]);
   }
 
-  getSelectedTags() {
-    return this.selectedTags$.asObservable();
+  removeSelectedTag(tag) {
+    const currentState = this.selectedTags$.getValue();
+    this.selectedTags$.next(
+      currentState.filter(selectedTag => tag.name !== selectedTag.name)
+    );
+  }
+
+  getSelectedTags(byValue: boolean): Tag[];
+  getSelectedTags(): Observable<Tag[]>;
+  getSelectedTags(byValue?: boolean) {
+    return byValue
+      ? this.selectedTags$.getValue()
+      : this.selectedTags$.asObservable();
   }
 }
