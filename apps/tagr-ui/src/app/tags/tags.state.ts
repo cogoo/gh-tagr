@@ -8,12 +8,12 @@ export class TagsState {
 
   constructor() {}
 
-  addSelectedTag(tag) {
+  addSelectedTag(tag: Tag) {
     const currentState = this.selectedTags$.getValue();
     this.selectedTags$.next([...currentState, tag]);
   }
 
-  removeSelectedTag(tag) {
+  removeSelectedTag(tag: Tag) {
     const currentState = this.selectedTags$.getValue();
     this.selectedTags$.next(
       currentState.filter(selectedTag => tag.name !== selectedTag.name)
