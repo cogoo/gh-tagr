@@ -67,7 +67,7 @@
     "@storybook/addon-links": "5.1.9",
     "@storybook/addon-notes": "5.1.9",
     "@storybook/addons": "5.1.9",
-    "@storybook/angular": "5.1.9",
+    "@storybook/angular": "6.5.10",
     "@types/jest": "24.0.9",
     "@types/node": "~8.9.4",
     "babel-loader": "8.0.6",
